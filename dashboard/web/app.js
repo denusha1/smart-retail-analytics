@@ -76,3 +76,4 @@ async function init() {
   document.getElementById('reset').addEventListener('click', () => { selectIds.forEach(id => { document.getElementById(id).value = ''; }); currentPage = 1; refresh(); }); await refresh();
 }
 init().catch(error => { document.querySelector('.shell').insertAdjacentHTML('afterbegin', `<p class="empty">${error.message}</p>`); });
+setInterval(() => refresh().catch(() => {}), 30000);

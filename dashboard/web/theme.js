@@ -1,5 +1,6 @@
 (() => {
   const stylesheet = document.createElement('link'); stylesheet.rel = 'stylesheet'; stylesheet.href = '/theme.css'; document.head.append(stylesheet);
+  const languageStyles = document.createElement('link'); languageStyles.rel = 'stylesheet'; languageStyles.href = '/lang.css'; document.head.append(languageStyles);
   const saved = localStorage.getItem('retailpulse-theme');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   if (saved === 'dark' || (!saved && prefersDark)) document.body.classList.add('dark-mode');

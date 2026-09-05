@@ -48,6 +48,7 @@ def money(value: float) -> float:
 
 
 def filtered_data(params: dict[str, list[str]]) -> pd.DataFrame:
+    refresh_live_database()
     with DATA_LOCK:
         df = DATA.copy()
     for column in ("branch", "product_category", "customer_type"):
@@ -61,6 +62,40 @@ def filtered_data(params: dict[str, list[str]]) -> pd.DataFrame:
     if end_date:
         df = df[df["date"] <= pd.to_datetime(end_date)]
     return df
+
+
+def refresh_live_database() -> bool:
+    """Pull current MySQL transactions when DATABASE_URL is configured.
+
+    Without DATABASE_URL the application continues safely in CSV demo mode.
+    """
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        return False
+    try:
+        from sqlalchemy import create_engine
+        query = """
+            SELECT t.transaction_date AS date, t.month, t.year, t.day_of_week,
+                   t.branch_id AS branch, COALESCE(b.region, 'Unassigned') AS region,
+                   t.branch_id AS store_id, t.product_name, t.category AS product_category,
+                   t.customer_type, t.customer_segment, t.quantity_sold, t.unit_price,
+                   t.total_sales, 0 AS discount_amount, t.discount_percent, t.revenue,
+                   t.total_sales AS expected_total, t.profit_margin_percent AS estimated_profit_margin_percent,
+                   t.estimated_profit, t.profit_margin, t.sales_performance, t.revenue AS order_value
+            FROM transactions t LEFT JOIN branches b ON b.branch_id = t.branch_id
+            ORDER BY t.transaction_date
+        """
+        engine = create_engine(database_url, pool_pre_ping=True)
+        latest = pd.read_sql(query, engine, parse_dates=["date"])
+        if latest.empty:
+            return False
+        global DATA
+        with DATA_LOCK:
+            DATA = latest
+        return True
+    except Exception as error:
+        print(f"Live database refresh unavailable: {error}")
+        return False
 
 
 def normalize_uploaded_data(uploaded: pd.DataFrame) -> pd.DataFrame:
@@ -257,6 +292,33 @@ def openapi_spec() -> dict:
     return {"openapi": "3.0.3", "info": {"title": "RetailPulse Analytics API", "version": "1.0.0"}, "paths": {path: {"get" if path != "/api/upload" else "post": {"summary": summary, "responses": {"200": {"description": "Success"}}}} for path, summary in paths.items()}}
 
 
+def inventory_payload() -> dict:
+    with DATA_LOCK:
+        df = DATA.copy()
+    days = max((df["date"].max() - df["date"].min()).days + 1, 1)
+    products = df.groupby(["product_name", "product_category"], as_index=False)["quantity_sold"].sum()
+    products["daily_velocity"] = products["quantity_sold"] / days
+    products["reorder_point"] = np.maximum(8, np.ceil(products["daily_velocity"] * 7)).astype(int)
+    products["on_hand"] = np.maximum(5, np.round(products["quantity_sold"] * 0.75)).astype(int)
+    products["status"] = np.where(products["on_hand"] <= products["reorder_point"], "Low stock", "Healthy")
+    products["coverage_days"] = np.round(products["on_hand"] / products["daily_velocity"].clip(lower=.1), 1)
+    products = products.sort_values(["status", "on_hand", "product_name"])
+    low = products[products["status"] == "Low stock"]
+    return {"summary": {"skus": len(products), "low_stock": len(low), "units_on_hand": int(products["on_hand"].sum())}, "items": [{"product": row.product_name, "category": row.product_category, "on_hand": int(row.on_hand), "reorder_point": int(row.reorder_point), "daily_velocity": round(float(row.daily_velocity), 1), "coverage_days": float(row.coverage_days), "status": row.status} for row in products.itertuples()]}
+
+
+def targets_payload() -> dict:
+    with DATA_LOCK:
+        df = DATA.copy()
+    actual = df.groupby("branch")["revenue"].sum().sort_index()
+    target = float(actual.mean() * 1.05) if not actual.empty else 0
+    rows = []
+    for branch, value in actual.items():
+        attainment = value / target * 100 if target else 0
+        rows.append({"branch": branch, "actual": money(value), "target": money(target), "gap": money(value - target), "attainment": round(attainment, 1), "status": "On track" if attainment >= 100 else "Behind target"})
+    return {"summary": {"target": money(target * len(actual)), "actual": money(actual.sum()), "attainment": round(actual.sum() / (target * len(actual)) * 100 if target else 0, 1)}, "branches": rows}
+
+
 class DashboardHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args: object) -> None:
         print(f"[{self.log_date_time_string()}] {fmt % args}")
@@ -308,10 +370,19 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.redirect("/login.html")
             return
         if parsed.path == "/api/health":
-            self.send_json({"status": "ok", "records": len(DATA)})
+            self.send_json({"status": "ok", "records": len(DATA), "data_source": "mysql" if os.getenv("DATABASE_URL") else "csv"})
+            return
+        if parsed.path == "/api/realtime/status":
+            self.send_json({"enabled": bool(os.getenv("DATABASE_URL")), "source": "MySQL" if os.getenv("DATABASE_URL") else "CSV demo", "refresh_seconds": 30})
             return
         if parsed.path == "/api/openapi.json":
             self.send_json(openapi_spec())
+            return
+        if parsed.path == "/api/inventory":
+            self.send_json(inventory_payload())
+            return
+        if parsed.path == "/api/targets":
+            self.send_json(targets_payload())
             return
         if parsed.path == "/api/filters":
             self.send_json({
@@ -347,7 +418,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             content += b"\n" + (STATIC_DIR / "upload-and-filters.css").read_bytes()
             content += b"\n" + (STATIC_DIR / "date-filters.css").read_bytes()
         if requested.endswith(".html") and requested != "login.html":
-            content = content.replace(b"</body>", b'<script src="/theme.js"></script></body>')
+            content = content.replace(b"</body>", b'<script src="/theme.js"></script><script src="/lang.js"></script></body>')
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", mimetypes.guess_type(str(target))[0] or "application/octet-stream")
         self.send_header("Content-Length", str(len(content)))

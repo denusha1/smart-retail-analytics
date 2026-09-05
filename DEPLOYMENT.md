@@ -30,3 +30,11 @@ docker run --rm -p 8000:8000 -e RETAIL_ADMIN_EMAIL=admin@company.lk -e RETAIL_AD
 ## API documentation
 
 After signing in, open `/docs.html` for Swagger UI. The OpenAPI JSON schema is served from `/api/openapi.json`.
+
+## Real-time MySQL mode
+
+1. Create the schema with `sql/01_database_setup.sql`.
+2. Import transactions with `import_data.py` after configuring its database credentials.
+3. Copy `.env.example` values into your hosting environment and set `DATABASE_URL`.
+
+When `DATABASE_URL` is set, the API refreshes data from MySQL for every analytics request. The browser dashboard polls for updates every 30 seconds, so new sales, target changes, and inventory alerts appear without a manual page refresh.
