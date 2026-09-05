@@ -15,6 +15,7 @@ import mimetypes
 import os
 import secrets
 import threading
+import urllib.request
 from http.cookies import SimpleCookie
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -23,9 +24,11 @@ from urllib.parse import parse_qs, urlparse
 
 import pandas as pd
 import numpy as np
+from dotenv import load_dotenv
 
 
 ROOT = Path(__file__).resolve().parent
+load_dotenv(ROOT / ".env")
 DATA_FILE = ROOT / "data" / "processed" / "retail_enriched.csv"
 STATIC_DIR = ROOT / "dashboard" / "web"
 
@@ -71,7 +74,7 @@ def refresh_live_database() -> bool:
     """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
-        return False
+        return refresh_supabase_rest()
     try:
         from sqlalchemy import create_engine
         query = """
@@ -95,6 +98,37 @@ def refresh_live_database() -> bool:
         return True
     except Exception as error:
         print(f"Live database refresh unavailable: {error}")
+        return False
+
+
+def refresh_supabase_rest() -> bool:
+    """Use Supabase Data API when a direct PostgreSQL URL is not configured."""
+    project_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+    api_key = os.getenv("SUPABASE_ANON_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
+    if not (project_url and api_key):
+        return False
+    try:
+        request = urllib.request.Request(f"{project_url.rstrip('/')}/rest/v1/transactions?select=*&order=transaction_date.asc", headers={"apikey": api_key, "Authorization": f"Bearer {api_key}"})
+        with urllib.request.urlopen(request, timeout=8) as response:
+            transactions = pd.DataFrame(json.loads(response.read().decode("utf-8")))
+        if transactions.empty:
+            return False
+        request = urllib.request.Request(f"{project_url.rstrip('/')}/rest/v1/branches?select=branch_id,region", headers={"apikey": api_key, "Authorization": f"Bearer {api_key}"})
+        with urllib.request.urlopen(request, timeout=8) as response:
+            branches = pd.DataFrame(json.loads(response.read().decode("utf-8")))
+        latest = transactions.merge(branches, how="left", left_on="branch_id", right_on="branch_id")
+        latest = latest.rename(columns={"transaction_date": "date", "branch_id": "branch", "category": "product_category", "profit_margin_percent": "estimated_profit_margin_percent"})
+        latest["store_id"] = latest["branch"]
+        latest["discount_amount"] = 0
+        latest["expected_total"] = latest["total_sales"]
+        latest["order_value"] = latest["revenue"]
+        latest["date"] = pd.to_datetime(latest["date"])
+        global DATA
+        with DATA_LOCK:
+            DATA = latest
+        return True
+    except Exception as error:
+        print(f"Supabase REST refresh unavailable: {error}")
         return False
 
 
@@ -370,10 +404,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.redirect("/login.html")
             return
         if parsed.path == "/api/health":
-            self.send_json({"status": "ok", "records": len(DATA), "data_source": "mysql" if os.getenv("DATABASE_URL") else "csv"})
+            source = "supabase" if (os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")) else ("database" if os.getenv("DATABASE_URL") else "csv")
+            self.send_json({"status": "ok", "records": len(DATA), "data_source": source})
             return
         if parsed.path == "/api/realtime/status":
-            self.send_json({"enabled": bool(os.getenv("DATABASE_URL")), "source": "MySQL" if os.getenv("DATABASE_URL") else "CSV demo", "refresh_seconds": 30})
+            is_supabase = bool(os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL"))
+            self.send_json({"enabled": bool(os.getenv("DATABASE_URL")) or is_supabase, "source": "Supabase REST" if is_supabase else ("PostgreSQL/MySQL" if os.getenv("DATABASE_URL") else "CSV demo"), "refresh_seconds": 30})
             return
         if parsed.path == "/api/openapi.json":
             self.send_json(openapi_spec())
