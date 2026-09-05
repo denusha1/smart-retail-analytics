@@ -1,0 +1,29 @@
+date,month,year,day_of_week,branch,region,store_id,product_name,product_category,customer_type,customer_segment,quantity_sold,unit_price,total_sales,discount_amount,discount_percent,revenue,expected_total,estimated_profit_margin_percent,estimated_profit,profit_margin,sales_performance,order_value
+2024-01-01,1,2024,Monday,S001,North,S001,Laptop,Electronics,Online,Premium Online,2,89999,179998,0,0.0,179998,179998,30,53999.4,30.0,Very High,179998
+2024-01-01,1,2024,Monday,S002,South,S002,T-Shirt,Clothing,Offline,Budget Offline,15,499,7485,0,0.0,7485,7485,40,2994.0,40.0,Low,7485
+2024-01-01,1,2024,Monday,S001,North,S001,Pillow,Home,Offline,Budget Offline,8,1299,10392,0,0.0,10392,10392,40,4156.8,40.0,Medium,10392
+2024-01-02,1,2024,Tuesday,S003,East,S003,Headphones,Electronics,Online,Standard Online,5,4999,24995,0,0.0,24995,24995,30,7498.5,30.0,Medium,24995
+2024-01-02,1,2024,Tuesday,S002,South,S002,Jeans,Clothing,Offline,Standard Offline,12,1999,23988,0,0.0,23988,23988,40,9595.2,40.0,Medium,23988
+2024-01-02,1,2024,Tuesday,S001,North,S001,Coffee,Food,Online,Budget Online,25,299,7475,0,0.0,7475,7475,20,1495.0,20.0,Low,7475
+2024-01-03,1,2024,Wednesday,S004,West,S004,Phone,Electronics,Online,Premium Online,3,59999,179997,0,0.0,179997,179997,30,53999.1,30.0,Very High,179997
+2024-01-03,1,2024,Wednesday,S003,East,S003,Shirt,Clothing,Offline,Budget Offline,20,899,17980,0,0.0,17980,17980,40,7192.0,40.0,Medium,17980
+2024-01-03,1,2024,Wednesday,S002,South,S002,Bedsheet,Home,Online,Standard Online,10,2499,24990,0,0.0,24990,24990,40,9996.0,40.0,Medium,24990
+2024-01-04,1,2024,Thursday,S001,North,S001,Charger,Electronics,Offline,Standard Offline,30,899,26970,0,0.0,26970,26970,30,8091.0,30.0,Medium,26970
+2024-01-04,1,2024,Thursday,S004,West,S004,Snacks,Food,Offline,Budget Offline,45,199,8955,0,0.0,8955,8955,20,1791.0,20.0,Low,8955
+2024-01-04,1,2024,Thursday,S003,East,S003,Jacket,Clothing,Online,Premium Online,8,3999,31992,0,0.0,31992,31992,40,12796.8,40.0,Medium,31992
+2024-01-05,1,2024,Friday,S002,South,S002,Tablet,Electronics,Online,Premium Online,4,34999,139996,0,0.0,139996,139996,30,41998.8,30.0,Very High,139996
+2024-01-05,1,2024,Friday,S001,North,S001,Towel,Home,Offline,Budget Offline,22,599,13178,0,0.0,13178,13178,40,5271.200000000001,40.0,Medium,13178
+2024-01-05,1,2024,Friday,S004,West,S004,Beverages,Food,Online,Budget Online,50,149,7450,0,0.0,7450,7450,20,1490.0,20.0,Low,7450
+2024-01-06,1,2024,Saturday,S003,East,S003,Sweater,Clothing,Offline,Standard Offline,18,1599,28782,0,0.0,28782,28782,40,11512.8,40.0,Medium,28782
+2024-01-06,1,2024,Saturday,S002,South,S002,Smartwatch,Electronics,Online,Premium Online,6,7999,47994,0,0.0,47994,47994,30,14398.2,30.0,Medium,47994
+2024-01-06,1,2024,Saturday,S001,North,S001,Curtains,Home,Offline,Standard Offline,5,4999,24995,0,0.0,24995,24995,40,9998.0,40.0,Medium,24995
+2024-01-07,1,2024,Sunday,S004,West,S004,Pants,Clothing,Online,Premium Online,25,1299,32475,0,0.0,32475,32475,40,12990.0,40.0,Medium,32475
+2024-01-07,1,2024,Sunday,S003,East,S003,Organic Rice,Food,Offline,Budget Offline,30,399,11970,0,0.0,11970,11970,20,2394.0,20.0,Medium,11970
+2024-01-08,1,2024,Monday,S001,North,S001,Camera,Electronics,Online,Premium Online,2,79999,159998,0,0.0,159998,159998,30,47999.4,30.0,Very High,159998
+2024-01-08,1,2024,Monday,S002,South,S002,Lamp,Home,Offline,Standard Offline,12,2499,29988,0,0.0,29988,29988,40,11995.2,40.0,Medium,29988
+2024-01-08,1,2024,Monday,S004,West,S004,Dress,Clothing,Online,Standard Online,10,2499,24990,0,0.0,24990,24990,40,9996.0,40.0,Medium,24990
+2024-01-09,1,2024,Tuesday,S003,East,S003,Monitor,Electronics,Online,Premium Online,3,19999,59997,0,0.0,59997,59997,30,17999.1,30.0,High,59997
+2024-01-09,1,2024,Tuesday,S001,North,S001,Tea,Food,Offline,Budget Offline,40,249,9960,0,0.0,9960,9960,20,1992.0,20.0,Low,9960
+2024-01-10,1,2024,Wednesday,S002,South,S002,Hoodie,Clothing,Online,Standard Online,16,1799,28784,0,0.0,28784,28784,40,11513.6,40.0,Medium,28784
+2024-01-10,1,2024,Wednesday,S004,West,S004,Bedside Table,Home,Offline,Standard Offline,4,5999,23996,0,0.0,23996,23996,40,9598.4,40.0,Medium,23996
+2024-01-10,1,2024,Wednesday,S003,East,S003,Keyboard,Electronics,Offline,Premium Offline,15,3999,59985,0,0.0,59985,59985,30,17995.5,30.0,High,59985

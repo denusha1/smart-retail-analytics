@@ -22,6 +22,9 @@ data/processed/*
 *.xlsx
 *.xls
 
+# Keep the small, anonymised dashboard fixture required by the app and CI.
+!data/processed/retail_enriched.csv
+
 # IDE
 .vscode/
 .idea/
