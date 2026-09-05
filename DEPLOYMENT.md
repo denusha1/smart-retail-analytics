@@ -1,0 +1,32 @@
+# Deployment
+
+## Render
+
+1. Push this repository to GitHub.
+2. In Render, choose **New > Blueprint** and select the repository.
+3. Render reads `render.yaml`, installs dependencies, and starts the dashboard on its assigned `PORT`.
+4. Configure these environment variables in Render before sharing the link:
+
+   - `RETAIL_ADMIN_EMAIL`
+   - `RETAIL_ADMIN_PASSWORD`
+
+The service will receive a public URL such as `https://retailpulse-analytics.onrender.com` after deployment.
+
+## Automated tests
+
+Run the verification suite locally:
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+## Docker
+
+```bash
+docker build -t retailpulse .
+docker run --rm -p 8000:8000 -e RETAIL_ADMIN_EMAIL=admin@company.lk -e RETAIL_ADMIN_PASSWORD=change-me retailpulse
+```
+
+## API documentation
+
+After signing in, open `/docs.html` for Swagger UI. The OpenAPI JSON schema is served from `/api/openapi.json`.

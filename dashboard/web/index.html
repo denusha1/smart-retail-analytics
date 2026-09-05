@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RetailPulse | Smart Retail Analytics</title>
+    <link rel="stylesheet" href="styles-v2.css">
+    <style>.report-actions{display:flex;align-items:center;justify-content:space-between;margin:-8px 0 20px;padding:13px 16px;border:1px solid #dfe8f6;border-radius:13px;background:linear-gradient(100deg,#fff,#f7faff)}.report-actions .table-kicker{margin:0 0 3px!important}.report-actions b{color:#314767;font:700 13px Georgia,ui-serif,serif}.report-actions>div:last-child{display:flex;gap:8px}.report-actions a{padding:9px 11px;border:1px solid #d8e3f4;border-radius:7px;background:#fff;color:#355a96;text-decoration:none;font:700 11px Georgia,ui-serif,serif}.report-actions a:hover{background:#edf4ff}.report-actions .primary-export{border-color:#264c88;background:#264c88;color:#fff}.report-actions .primary-export:hover{background:#18386d}.intelligence-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;margin:20px 0}.forecast-panel,.alerts-panel{padding:21px}.forecast-panel{background:linear-gradient(145deg,#f8fbff,#fff);border-color:#dce8f8}.forecast-panel h2,.alerts-panel h2{font:700 19px Georgia,ui-serif,serif;color:#203960}.forecast-badge{padding:6px 9px;border-radius:99px;background:#e7f1ff;color:#4879be;font:700 10px Georgia,ui-serif,serif}.forecast-bars{display:flex;align-items:end;gap:13px;height:125px;padding:10px 8px 0;border-bottom:1px solid #e5edf8}.forecast-day{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:end;gap:6px;height:100%}.forecast-day i{width:100%;min-height:7px;border-radius:5px 5px 0 0;background:linear-gradient(#78b4ff,#336fd2);box-shadow:0 3px 7px rgba(47,106,207,.18)}.forecast-day b{font:700 10px Georgia,ui-serif,serif;color:#42618f;white-space:nowrap}.forecast-day span{font:600 10px Georgia,ui-serif,serif;color:#7688a2}.alerts-list{display:grid;gap:10px}.alert-item{display:grid;grid-template-columns:26px 1fr;gap:9px;padding:10px;border:1px solid #e6edf7;border-radius:9px;background:#fbfcff}.alert-item>span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#eaf2ff;color:#3972bf;font:800 12px Georgia,ui-serif,serif}.alert-item.attention>span{background:#fff0e3;color:#c8751e}.alert-item.opportunity>span{background:#e5f8ef;color:#16815f}.alert-item b{font:700 12px Georgia,ui-serif,serif;color:#29446d}.alert-item p{margin:3px 0 0;color:#73839b;font:500 11px Georgia,ui-serif,serif;line-height:1.35}@media(max-width:780px){.report-actions{display:block}.report-actions>div:last-child{margin-top:12px}.report-actions a{flex:1;text-align:center}.intelligence-grid{grid-template-columns:1fr}.forecast-bars{gap:6px}.forecast-day b{font-size:8px}}</style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="hero-copy">
+          <div class="brand-row"><div class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></div><p class="eyebrow">SMART RETAIL ANALYTICS</p></div>
+          <h1>Retail<span>Pulse</span></h1>
+          <p class="subtitle">Live performance overview for your retail business.</p>
+          <p class="hero-note">Turn every transaction into a clearer next move.</p>
+        </div>
+        <div class="hero-side"><div class="status"><span></span> Live dataset</div><p>Operational intelligence<br><b>at a glance</b></p></div>
+      </header>
+
+      <nav class="site-nav" aria-label="Main navigation">
+        <a class="active" href="/">Overview</a><a href="/products.html">Products</a><a href="/branches.html">Branches</a><a href="/transactions.html">Transactions</a><a href="/upload.html">Upload data</a>
+        <span>Retail intelligence workspace</span><button class="logout-button" type="button" data-logout>Sign out</button>
+      </nav>
+      <div class="report-actions"><div><p class="table-kicker">REPORTING</p><b>Share your latest retail performance</b></div><div><a id="export-csv" href="/api/export.csv">Download CSV</a><a id="export-pdf" class="primary-export" href="/api/export.pdf">Download PDF</a></div></div>
+
+      <section class="filters" aria-label="Dashboard filters">
+        <div class="filter-intro"><span class="filter-icon" aria-hidden="true">⌘</span><div><b>Dashboard filters</b><small>Refine your analysis</small></div></div>
+        <label><span>Branch</span><select id="branch"><option value="">All branches</option></select></label>
+        <label><span>Category</span><select id="product_category"><option value="">All categories</option></select></label>
+        <label><span>Channel</span><select id="customer_type"><option value="">All channels</option></select></label>
+        <button id="reset" type="button">Reset filters</button>
+      </section>
+      <section class="time-controls" aria-label="Time comparison controls"><div class="time-intro"><span>◷</span><div><b>Time comparison</b><small>Set a reporting period and view granularity</small></div></div><label><span>From date</span><input id="start_date" type="date"></label><label><span>To date</span><input id="end_date" type="date"></label><label><span>Compare by</span><select id="comparison_period"><option value="daily">Daily</option><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></label></section>
+
+      <section class="metrics" aria-label="Key metrics">
+        <article><p>Total revenue</p><strong id="revenue">—</strong><small>Sales after discounts</small></article>
+        <article><p>Estimated profit</p><strong id="profit">—</strong><small>Projected contribution</small></article>
+        <article><p>Profit margin</p><strong id="margin">—</strong><small>Across selected sales</small></article>
+        <article><p>Transactions</p><strong id="transactions">—</strong><small><span id="quantity">—</span> units sold</small></article>
+      </section>
+
+      <section class="intelligence-grid"><article class="panel forecast-panel"><div class="panel-head"><div><p class="table-kicker">7-DAY FORECAST</p><h2>Revenue outlook</h2><p id="forecast-summary">Calculating trend…</p></div><span class="forecast-badge">Modelled</span></div><div id="forecast-bars" class="forecast-bars"></div></article><article class="panel alerts-panel"><div class="panel-head"><div><p class="table-kicker">SMART ALERTS</p><h2>Action centre</h2><p>Data-led recommendations</p></div></div><div id="alerts-list" class="alerts-list"></div></article></section>
+
+      <section class="grid">
+        <article class="panel wide"><div class="panel-head"><div><h2>Revenue trend</h2><p>Revenue by day</p></div><strong id="average_order"></strong></div><div id="trend" class="line-chart"></div></article>
+        <article class="panel"><div class="panel-head"><div><h2>Category mix</h2><p>Revenue contribution</p></div></div><div id="category" class="bar-chart"></div></article>
+        <article class="panel"><div class="panel-head"><div><h2>Branch performance</h2><p>Revenue by store</p></div></div><div id="branch-chart" class="bar-chart"></div></article>
+      </section>
+
+      <section class="panel table-panel"><div class="panel-head"><div><p class="table-kicker">SALES LEDGER</p><h2>Recent transactions</h2><p>10 transactions per page</p></div><span class="record-chip">Live results</span></div><div class="table-scroll"><table><thead><tr><th>Date</th><th>Product</th><th>Branch</th><th>Channel</th><th>Qty.</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="transaction-body"></tbody></table></div><nav id="pagination" class="pagination" aria-label="Transaction pages"></nav></section>
+    </main>
+    <template id="empty"><p class="empty">No transactions match these filters.</p></template>
+    <script src="app.js"></script><script src="auth.js"></script>
+  </body>
+</html>
